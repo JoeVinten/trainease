@@ -1,40 +1,35 @@
+from services.get_departures_data import LiveDepartureData
+from services.get_station_inputs import get_station_inputs
 from services.station_validator import StationValidator
 
 
-def get_stations_from_user(prompt, validator):
-    """Get and validate inputs from the user"""
-
-    print(prompt)
-
-    stations = input()
-
-    valid_stations = []
-    for station in stations.split(","):
-        valid_station = validator.find_matching_stations(station_input=station)
-        if valid_station:
-            valid_stations.append(valid_station)
-
-    if len(valid_stations) < 1:
-        print("❌ No valid stations found")
-
-    return valid_stations
-
-
 def main():
-    print("🚂 Welcome to TrainEase!")
+    print(
+        "🚂 Welcome to TrainEase! Follow the prompts to get live direct train journeys to and from multiple stations."
+    )
 
     validator = StationValidator()
 
-    origin_stations = get_stations_from_user(
+    origin_stations = get_station_inputs(
         "Enter origin stations (comma-separated):", validator
     )
 
-    destination_stations = get_stations_from_user(
+    destination_stations = get_station_inputs(
         "Enter destination stations (comma-separated):", validator
     )
 
     if origin_stations and destination_stations:
         print("Ready to proceed with finding your journey... CHOO CHOO")
+
+    valid_journeys = None
+    for origin_station in origin_stations:
+        departure_board = LiveDepartureData(origin_station.code, origin_station.name)
+
+        valid_journeys = departure_board.find_trains_to_destinations(
+            destination_stations
+        )
+
+    # form
 
 
 if __name__ == "__main__":
