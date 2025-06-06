@@ -22,14 +22,13 @@ def main():
     if origin_stations and destination_stations:
         print("Ready to proceed with finding your journey... CHOO CHOO")
 
-    valid_journeys = {}
+    valid_journeys = []
     for origin_station in origin_stations:
         departure_board = LiveDepartureData(origin_station.code, origin_station.name)
 
-        valid_journeys[origin_station.name] = {
-            "station_code": origin_station.code,
-            "trains": departure_board.find_trains_to_destinations(destination_stations),
-        }
+        valid_journeys.extend(
+            departure_board.find_trains_to_destinations(destination_stations)
+        )
 
     format_responses(valid_journeys)
 

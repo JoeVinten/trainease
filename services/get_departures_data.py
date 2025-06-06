@@ -40,7 +40,7 @@ class LiveDepartureData:
             return None
 
     def find_trains_to_destinations(self, dest_stations):
-        matching_trains = {}
+        matching_trains = []
 
         for dest_station in dest_stations:
             dest_code = dest_station.code
@@ -51,12 +51,10 @@ class LiveDepartureData:
 
             if dept_data is None:
                 print(f"❌ Failed to get data for {dest_code}")
-                matching_trains[dest_code] = []
                 continue
 
             if not dept_data.get("areServicesAvailable", True):
                 print(f"❌ No trains available from {dest_code}")
-                matching_trains[dest_code] = []
                 continue
 
             train_services = dept_data.get("trainServices", [])
@@ -64,6 +62,9 @@ class LiveDepartureData:
 
             for service in train_services:
                 dest_info = None
+
+                if service.get("isCancelled"):
+                    continue
 
                 calling_points = service.get("subsequentCallingPoints", [])
                 for calling_point_group in calling_points:
@@ -92,12 +93,11 @@ class LiveDepartureData:
                     "estimated_departure": service.get("etd"),
                     "arrival": arrival,
                     "platform": service.get("platform"),
-                    "is_cancelled": service.get("isCancelled"),
                 }
 
                 destination_trains.append(journey_info)
 
-            matching_trains[dest_code] = destination_trains
+            matching_trains.extend(destination_trains)
             print(f"✅ Found {len(destination_trains)} trains to {dest_code}")
 
         return matching_trains
